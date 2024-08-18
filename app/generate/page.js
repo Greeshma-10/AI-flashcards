@@ -53,11 +53,9 @@ export default function Generate() {
       if (!response.ok) {
         throw new Error('Failed to generate flashcards');
       }
-
+//extract flashcard from response
       const data = await response.json();
       console.log('Generated flashcards:', data);
-  
-      // Extract flashcards from the response
       const flashcards = data.response.candidates || [];
       setFlashcards(flashcards);
     } catch (error) {
