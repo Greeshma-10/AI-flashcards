@@ -36,35 +36,37 @@ export default function Generate() {
 
   const handleSubmit = async () => {
     if (!text.trim()) {
-      alert('Please enter some text to generate flashcards.');
-      return;
+        alert('Please enter some text to generate flashcards.');
+        return;
     }
 
     setLoading(true);
     setError('');
 
     try {
-      const response = await fetch('/api/generate', {
-        method: 'POST',
-        body: JSON.stringify({ text }),
-        headers: { 'Content-Type': 'application/json' },
-      });
+        const response = await fetch('/api/generate', {
+            method: 'POST',
+            body: JSON.stringify({ text }), // Ensure the text is sent in the correct format
+            headers: { 'Content-Type': 'application/json' },
+        });
 
-      if (!response.ok) {
-        throw new Error('Failed to generate flashcards');
-      }
-//extract flashcard from response
-      const data = await response.json();
-      console.log('Generated flashcards:', data);
-      const flashcards = data.response.candidates || [];
-      setFlashcards(flashcards);
+        if (!response.ok) {
+            throw new Error('Failed to generate flashcards');
+        }
+
+        const data = await response.json();
+        console.log('Generated flashcards:', data);
+
+        // Since the API should return an array of flashcards directly
+        setFlashcards(data);
     } catch (error) {
-      console.error('Error generating flashcards:', error);
-      setError('An error occurred while generating flashcards. Please try again.');
+        console.error('Error generating flashcards:', error);
+        setError('An error occurred while generating flashcards. Please try again.');
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
+
 
   const saveFlashcards = async () => {
     if (!setName.trim()) {

@@ -57,29 +57,29 @@ export default function Flashcard() {
 
   return (
     <Container maxWidth="md">
-      <Grid container spacing={3} sx={{ mt: 4 }}>
-        {flashcards.length === 0 ? (
-          <Typography variant="h6" align="center">No flashcards found.</Typography>
-        ) : (
-          flashcards.map((flashcard) => (
-            <Grid item xs={12} sm={6} md={4} key={flashcard.id}>
-              <Card>
-                <CardActionArea onClick={() => handleCardClick(flashcard.id)}>
-                  <CardContent>
-                    <Box>
-                      <div>
-                        <Typography variant="h5" component="div">
-                          {flipped[flashcard.id] ? flashcard.back : flashcard.front}
-                        </Typography>
-                      </div>
-                    </Box>
-                  </CardContent>
-                </CardActionArea>
-              </Card>
-            </Grid>
-          ))
-        )}
-      </Grid>
+        <Grid container spacing={3} sx={{ mt: 4 }}>
+            {flashcards.length === 0 ? (
+                <Typography variant="h6" align="center">No flashcards found.</Typography>
+            ) : (
+                flashcards.map((flashcard) => (
+                    <Grid item xs={12} sm={6} md={4} key={flashcard.id}>
+                        <Card>
+                            <CardActionArea onClick={() => handleCardClick(flashcard.id)}>
+                                <CardContent>
+                                    <Box>
+                                        <div>
+                                            <Typography variant="h5" component="div">
+                                                {flipped[flashcard.id] ? flashcard.back : flashcard.front}
+                                            </Typography>
+                                        </div>
+                                    </Box>
+                                </CardContent>
+                            </CardActionArea>
+                        </Card>
+                    </Grid>
+                ))
+            )}
+        </Grid>
     </Container>
-  );
+);
 }

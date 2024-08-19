@@ -1,56 +1,58 @@
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
-import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const API_KEY = process.env.GOOGLE_API_KEY;
-const MODEL_NAME = "gemini-1.5-flash";
-const genAI = new GoogleGenerativeAI(API_KEY);
+const systemPrompt = `
+You're a flashcard Creator. Your task is to generate concise and effective flashcards based on the given topic or content. Follow these guidelines:
+
+1. Create clear and concise questions for the front of the flashcard.
+2. Provide accurate and Informative answers for the back of the flashcard.
+3. Ensure that each flashcard focuses on a single concept or piece of information.
+4. Use simple language to make the flashcards accessible to a wide range of learners.
+5. Include a variety of question types, such as definitions, examples, comparisons, and applications.
+6. Avoid overly complex or ambiguous phrasing in both questions and answers.
+7. When appropriate, use mnemonics or memory aids to help reinforce the information.
+8. Tailor the difficulty level of the flashcards to the user's specified preferences.
+9. If given a body of text, extract the most important and relevant information for the flashcards.
+10. Aim to create a balanced set of flashcards that covers the topic comprehensively.
+11. Generate only 10 Flashcards.
+
+Remember, the goal is to facilitate effective learning and retention of information through these flashcards.
+
+Return in the following JSON Format
+{
+  "flashcards": [
+        {
+            "front": "str",
+            "back": "str"
+        }
+    ]
+}
+`;
 
 export async function POST(req) {
-    const systemPrompt = `
-    You are an AI specialized in creating educational flashcards for users. Your primary goal is to help users learn and retain information efficiently by generating concise, clear, and well-structured flashcards based on the input provided.
+  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+  const data = await req.text();
 
-    Guidelines:
-    1. Content Accuracy: Ensure all facts, definitions, and explanations are accurate and relevant to the topic provided. If the input is ambiguous, ask clarifying questions or make a well-reasoned assumption.
-    2. Clarity and Brevity: Each flashcard should be concise, using simple language that is easy to understand. Avoid unnecessary jargon, but include important keywords and concepts.
-    3. Structure: 
-        - Question Side: Present the key concept, question, or term in a way that prompts the user to recall the answer. Examples include definitions, fill-in-the-blank statements, or direct questions.
-        - Answer Side: Provide a clear and correct answer, including a brief explanation if necessary. Ensure the answer is straightforward and easy to memorize.
-    4. Customization: Adapt the flashcards to the user's preferences if they provide specific instructions. This could include adjusting the complexity, focusing on certain subtopics, or providing examples.
-    5. Learning Enhancements:
-        - Use mnemonic devices where applicable.
-        - Break down complex topics into multiple cards for easier understanding.
-        - Highlight connections between related concepts to reinforce learning.
-    6. User Interaction: Encourage users to actively engage with the flashcards by including interactive elements such as true/false questions, multiple-choice questions, or prompts to recall information before revealing the answer.
-    7. Tone and Style: Maintain a neutral, encouraging, and informative tone to support a positive learning experience. Adapt the language to the level of the user, whether they are beginners, intermediate, or advanced learners.
-    8. Only generate 9 flashcards unless the user specifies the number of flashcards.
+  const completion = await genAI
+    .getGenerativeModel({
+      model: "gemini-1.5-pro",
+      systemInstruction: systemPrompt,
+    })
+    .generateContent(data);
 
-    Return in the following JSON format 
-    {
-    "flashcards":[
-            {
-                "front": str,
-                "back": str
-            }
-        ]
-    }`
-    try {
-        const { prompt } = await req.json();
-    
-        // Combine the system prompt with the user input
-        const combinedPrompt = `${systemPrompt}\n\nUser input:\n${prompt}`;
+  const responseText = completion.response.candidates[0].content.parts[0].text;
 
-        // Call the Gemini API
-        const response = await genAI
-            .getGenerativeModel({ model: MODEL_NAME })
-            .generateContent({
-                contents: [{ parts: [{ text: combinedPrompt }] }]
-            });
-   
+  // Remove the code block markers from the response
+  const cleanText = responseText.replace(/```json\n/, "").replace(/```/, "");
 
-        // Send the response back to the client
-        return NextResponse.json(response);
-    } catch (error) {
-        console.error('Error generating flashcards:', error);
-        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
-    }
+  try {
+    const flashcards = JSON.parse(cleanText);
+    return NextResponse.json(flashcards.flashcards);
+  } catch (error) {
+    console.error("Invalid JSON:", error);
+    return NextResponse.json(
+      { error: { message: "Invalid JSON" } },
+      { status: 400 }
+    );
+  }
 }
