@@ -34,22 +34,11 @@ const HomePage = () => {
         <Button variant="contained" color="primary" sx={{ mt: 2, mr: 2 }} href="/generate">
           Get Started
         </Button>
-        <Button variant="outlined" color="primary" sx={{ mt: 2 }}>
-          Learn More
+        <Button variant="outlined" color="primary" sx={{ mt: 2 }} href="/flashcards">
+          View Saved Flashcards
         </Button>
       </Box>
-      <Box sx={{ my: 6 }}>
-        <Typography variant="h4" component="h2" gutterBottom>Features</Typography>
-        <Grid container spacing={4}>
-          {/* Feature items */}
-        </Grid>
-      </Box>
-      <Box sx={{ my: 6, textAlign: 'center' }}>
-        <Typography variant="h4" component="h2" gutterBottom>Pricing</Typography>
-        <Grid container spacing={4} justifyContent="center">
-          {/* Pricing plans */}
-        </Grid>
-      </Box>
+     
     </>
   );
 };

@@ -18,10 +18,30 @@ import {
   CircularProgress,
   Alert
 } from '@mui/material';
+import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { useUser } from '@clerk/nextjs';
 import { collection, doc, getDoc, writeBatch } from 'firebase/firestore';
 import { db } from '../lib/firebase'; // Adjust the import path as needed
 
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#FF0000', // Bright Red for primary actions like buttons
+    },
+    secondary: {
+      main: '#C0C0C0', // Silver for secondary elements
+    },
+    background: {
+      default: '#FFFFF0', // Ivory for the background
+      paper: '#333333', // Charcoal for card backgrounds
+    },
+    text: {
+      primary: '#FFFFF0', // Ivory for text on dark backgrounds
+      secondary: '#333333', // Charcoal for text on light backgrounds
+    },
+  },
+})
 export default function Generate() {
   const { user } = useUser();
   const [text, setText] = useState('');
@@ -106,6 +126,7 @@ export default function Generate() {
   };
 
   return (
+    <ThemeProvider theme={theme}>
     <Container maxWidth="md">
       <Box sx={{ my: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
@@ -162,6 +183,7 @@ export default function Generate() {
           </Button>
         </Box>
       )}
+      </Container>
       <Dialog open={dialogOpen} onClose={handleCloseDialog}>
         <DialogTitle>Save Flashcard Set</DialogTitle>
         <DialogContent>
@@ -185,6 +207,7 @@ export default function Generate() {
           </Button>
         </DialogActions>
       </Dialog>
-    </Container>
+    
+    </ThemeProvider>
   );
 }
