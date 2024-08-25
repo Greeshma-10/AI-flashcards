@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Container, Card, CardActionArea, CardContent, Typography, Box, CircularProgress, Alert } from '@mui/material';
+import { Container, Typography, Box, CircularProgress, Alert } from '@mui/material';
 import { useUser } from '@clerk/nextjs';
 import { collection, doc, getDocs } from 'firebase/firestore';
-import { db } from '../lib/firebase'; // Make sure you import your Firebase config
+import { db } from '../lib/firebase';
 
 export default function Flashcard() {
   const { isLoaded, isSignedIn, user } = useUser();
@@ -13,39 +13,41 @@ export default function Flashcard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const searchParams = new URLSearchParams(window.location.search);
-  const search = searchParams.get('id');
-
   useEffect(() => {
-    async function getFlashcard() {
-      if (!search || !user) {
-        setLoading(false);
-        return;
-      }
+    if (!isLoaded || !isSignedIn || !user || !user.id) {
+      setLoading(false);
+      return;
+    }
 
+    const searchParams = new URLSearchParams(window.location.search);
+    const search = searchParams.get('id');
+
+    if (!search) {
+      setLoading(false);
+      return;
+    }
+
+    async function getFlashcards() {
       try {
-        const colRef = collection(doc(collection(db, 'users'), user.id), search);
-        const docs = await getDocs(colRef);
-        const flashcards = [];
-        docs.forEach((doc) => {
-          flashcards.push({ id: doc.id, ...doc.data() });
-        });
-        setFlashcards(flashcards);
+        const colRef = collection(doc(collection(db, 'users'), user.id), 'flashcardSets', 'flashcards');
+        const querySnapshot = await getDocs(colRef);
+
+        if (querySnapshot.empty) {
+          setError('No flashcards found.');
+        } else {
+          const fetchedFlashcards = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          setFlashcards(fetchedFlashcards);
+        }
       } catch (err) {
-        setError('Failed to load flashcards');
+        console.error('Failed to load flashcards:', err);
+        setError('Failed to load flashcards.');
       } finally {
         setLoading(false);
       }
     }
-    getFlashcard();
-  }, [search, user]);
 
-  const handleCardClick = (id) => {
-    setFlipped((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
-  };
+    getFlashcards();
+  }, [isLoaded, isSignedIn, user]);
 
   if (loading) {
     return <CircularProgress />;
