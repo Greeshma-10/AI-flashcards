@@ -68,39 +68,44 @@ export default function Generate() {
 };
 
 
-  const saveFlashcards = async () => {
-    if (!setName.trim()) {
-      alert('Please enter a name for your flashcard set.');
-      return;
+const saveFlashcards = async () => {
+  if (!setName.trim()) {
+    alert('Please enter a name for your flashcard set.');
+    return;
+  }
+
+  try {
+    // Reference to the user document
+    const userDocRef = doc(db, 'users', user.id);
+    const userDocSnap = await getDoc(userDocRef);
+
+    const batch = writeBatch(db);
+
+    if (userDocSnap.exists()) {
+      const userData = userDocSnap.data();
+      const updatedSets = [...(userData.flashcardSets || []), { name: setName }];
+      batch.update(userDocRef, { flashcardSets: updatedSets });
+    } else {
+      batch.set(userDocRef, { flashcardSets: [{ name: setName }] });
     }
 
-    try {
-      const userDocRef = doc(collection(db, 'users'), user.id);
-      const userDocSnap = await getDoc(userDocRef);
+    // Reference to the flashcard set document within the user's subcollection
+    const setDocRef = doc(userDocRef, 'flashcardSets', setName);
+    batch.set(setDocRef, { flashcards });
 
-      const batch = writeBatch(db);
+    // Commit the batch operation
+    await batch.commit();
 
-      if (userDocSnap.exists()) {
-        const userData = userDocSnap.data();
-        const updatedSets = [...(userData.flashcardSets || []), { name: setName }];
-        batch.update(userDocRef, { flashcardSets: updatedSets });
-      } else {
-        batch.set(userDocRef, { flashcardSets: [{ name: setName }] });
-      }
+    alert('Flashcards saved successfully!');
+    handleCloseDialog();
+    setSetName('');
+  } catch (error) {
+    console.error('Error saving flashcards:', error);
+    //alert('An error occurred while saving flashcards. Please try again.');
+    alert(`An error occurred while saving flashcards: ${error.message}. Please try again.`);
+  }
+};
 
-      const setDocRef = doc(collection(userDocRef, 'flashcardSets'), setName);
-      batch.set(setDocRef, { flashcards });
-
-      await batch.commit();
-
-      alert('Flashcards saved successfully!');
-      handleCloseDialog();
-      setSetName('');
-    } catch (error) {
-      console.error('Error saving flashcards:', error);
-      alert('An error occurred while saving flashcards. Please try again.');
-    }
-  };
 
   return (
     <Container maxWidth="md">
@@ -116,7 +121,7 @@ export default function Generate() {
           multiline
           rows={4}
           variant="outlined"
-          sx={{ mb: 2 }}
+          sx={{ mb: 2 , backgroundColor: 'grey'}}
         />
         <Button
           variant="contained"

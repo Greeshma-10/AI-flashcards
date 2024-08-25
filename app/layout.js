@@ -1,18 +1,19 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
+// app/layout.js
+
 import { ClerkProvider } from '@clerk/nextjs';
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body>
-        <ClerkProvider>
-          {children}
-        </ClerkProvider>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body>{children}</body>
+      </html>
+    </ClerkProvider>
   );
 }
+
 
 
 const inter = Inter({ subsets: ["latin"] });

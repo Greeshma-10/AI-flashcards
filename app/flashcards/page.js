@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Container, Grid, Card, CardActionArea, CardContent, Typography, Box, CircularProgress, Alert } from '@mui/material';
+import { Container, Card, CardActionArea, CardContent, Typography, Box, CircularProgress, Alert } from '@mui/material';
 import { useUser } from '@clerk/nextjs';
 import { collection, doc, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase'; // Make sure you import your Firebase config
@@ -56,30 +56,39 @@ export default function Flashcard() {
   }
 
   return (
-    <Container maxWidth="md">
-        <Grid container spacing={3} sx={{ mt: 4 }}>
-            {flashcards.length === 0 ? (
-                <Typography variant="h6" align="center">No flashcards found.</Typography>
-            ) : (
-                flashcards.map((flashcard) => (
-                    <Grid item xs={12} sm={6} md={4} key={flashcard.id}>
-                        <Card>
-                            <CardActionArea onClick={() => handleCardClick(flashcard.id)}>
-                                <CardContent>
-                                    <Box>
-                                        <div>
-                                            <Typography variant="h5" component="div">
-                                                {flipped[flashcard.id] ? flashcard.back : flashcard.front}
-                                            </Typography>
-                                        </div>
-                                    </Box>
-                                </CardContent>
-                            </CardActionArea>
-                        </Card>
-                    </Grid>
-                ))
-            )}
-        </Grid>
+    <Container maxWidth="sm">
+      {flashcards.length === 0 ? (
+        <Typography variant="h6" align="center">No flashcards found.</Typography>
+      ) : (
+        flashcards.map((flashcard) => (
+          <Box key={flashcard.id} sx={{ mb: 4, perspective: '1000px' }}>
+            <Card
+              sx={{
+                transformStyle: 'preserve-3d',
+                transition: 'transform 0.6s',
+                transform: flipped[flashcard.id] ? 'rotateY(180deg)' : 'none',
+              }}
+            >
+              <CardActionArea onClick={() => handleCardClick(flashcard.id)}>
+                <CardContent
+                  sx={{
+                    height: '200px',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    backfaceVisibility: 'hidden',
+                    position: 'relative',
+                  }}
+                >
+                  <Typography variant="h5" component="div">
+                    {flipped[flashcard.id] ? flashcard.back : flashcard.front}
+                  </Typography>
+                </CardContent>
+              </CardActionArea>
+            </Card>
+          </Box>
+        ))
+      )}
     </Container>
-);
+  );
 }

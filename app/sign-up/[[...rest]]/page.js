@@ -1,13 +1,9 @@
 import React from 'react';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import Box from '@mui/material/Box';
-import { SignIn } from '@clerk/nextjs';
+import { Container, Box, Typography, AppBar, Toolbar, Button } from '@mui/material';
+import { SignUp } from '@clerk/nextjs';
 import Link from 'next/link';
 
-export default function SignInPage() {
+export default function SignUpPage() {
   return (
     <>
       <AppBar position="static" sx={{ backgroundColor: '#3f51b5' }}>
@@ -16,12 +12,13 @@ export default function SignInPage() {
             Flashcard SaaS
           </Typography>
           <Button color="inherit">
-            <Link href="/sign-up" passHref>
-              Sign Up
+            <Link href="/login" passHref>
+              Login
             </Link>
           </Button>
         </Toolbar>
       </AppBar>
+
       <Box
         display="flex"
         flexDirection="column"
@@ -30,9 +27,9 @@ export default function SignInPage() {
         sx={{ textAlign: 'center', my: 4 }}
       >
         <Typography variant="h4" component="h1" gutterBottom>
-          Sign In
+          Sign Up
         </Typography>
-        <SignIn />
+        <SignUp />
       </Box>
     </>
   );
