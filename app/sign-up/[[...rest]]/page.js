@@ -6,16 +6,11 @@ import Link from 'next/link';
 export default function SignUpPage() {
   return (
     <>
-      <AppBar position="static" sx={{ backgroundColor: '#3f51b5' }}>
+      <AppBar position="static" sx={{ backgroundColor: '#FF5722' }}>
         <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+          <Typography variant="h6" sx={{ flexGrow: 1,  textAlign:'center' }}>
             Flashcard SaaS
           </Typography>
-          <Button color="inherit">
-            <Link href="/login" passHref>
-              Login
-            </Link>
-          </Button>
         </Toolbar>
       </AppBar>
 
